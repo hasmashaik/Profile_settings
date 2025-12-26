@@ -1,11 +1,23 @@
 import { LoginCredentials, User } from '../features/auth/authTypes';
 
-// Mock user data
-const MOCK_USER: User = {
-  username: "admin",
-  name: "Admin User",
-  role: "Administrator",
-  profileImage: "https://ui-avatars.com/api/?name=Admin+User&background=258440&color=fff",
+// Mock user data - Load from localStorage or use default
+const getMockUser = (): User => {
+  try {
+    const savedUser = localStorage.getItem('mock_user_data');
+    if (savedUser) {
+      return JSON.parse(savedUser);
+    }
+  } catch (error) {
+    console.error('Error loading user data:', error);
+  }
+  
+  // Default user
+  return {
+    username: "admin",
+    name: "Admin User",
+    role: "Administrator",
+    profileImage: "https://ui-avatars.com/api/?name=Admin+User&background=258440&color=fff",
+  };
 };
 
 // Get password from localStorage or use default
@@ -19,13 +31,9 @@ const savePassword = (password: string): void => {
   localStorage.setItem('user_password', password);
 };
 
-// Get password info (for display purposes)
-const getPasswordInfo = (): { isDefault: boolean; password: string } => {
-  const password = getCurrentPassword();
-  return {
-    isDefault: password === "123456",
-    password: password
-  };
+// Save user data to localStorage
+const saveUserData = (userData: User): void => {
+  localStorage.setItem('mock_user_data', JSON.stringify(userData));
 };
 
 // Simulate API delay
@@ -37,15 +45,16 @@ export const mockApi = {
     await delay(1000);
     
     const currentPassword = getCurrentPassword();
+    const user = getMockUser();
     
-    if (credentials.username === "admin" && credentials.password === currentPassword) {
-      return MOCK_USER;
+    if (credentials.username === user.username && credentials.password === currentPassword) {
+      return user;
     }
     
     throw new Error("Invalid username or password");
   },
 
-  // Change password API - Now persists in localStorage
+  // Change password API
   changePassword: async (data: {
     currentPassword: string;
     newPassword: string;
@@ -63,17 +72,30 @@ export const mockApi = {
     throw new Error("Current password is incorrect");
   },
 
-  // Update profile API
+  // Update profile API - Now saves to localStorage
   updateProfile: async (userData: Partial<User>): Promise<User> => {
     await delay(800);
-    return { ...MOCK_USER, ...userData };
+    
+    const currentUser = getMockUser();
+    const updatedUser = { ...currentUser, ...userData };
+    
+    // Save updated user to localStorage
+    saveUserData(updatedUser);
+    
+    return updatedUser;
   },
 
-  // Helper to reset password (for testing)
-  resetPassword: (): void => {
+  // Get password info for display
+  getPasswordInfo: () => {
+    const password = getCurrentPassword();
+    return {
+      isDefault: password === "123456",
+      password: password
+    };
+  },
+
+  // Reset to default password
+  resetToDefault: (): void => {
     localStorage.removeItem('user_password');
   },
-
-  // Helper to get password info
-  getPasswordInfo,
 };

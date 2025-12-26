@@ -1,24 +1,29 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { AuthState, User } from './authTypes';
 
-// Check localStorage for existing auth
-const loadFromLocalStorage = (): { user: User | null; isAuthenticated: boolean } => {
+// Load user from localStorage
+const loadUserFromStorage = (): User | null => {
   try {
-    const authData = localStorage.getItem('auth');
-    if (authData) {
-      return JSON.parse(authData);
+    const userStr = localStorage.getItem('mock_user_data');
+    if (userStr) {
+      return JSON.parse(userStr);
     }
   } catch (error) {
-    console.error('Error reading auth from localStorage:', error);
+    console.error('Error loading user from localStorage:', error);
   }
-  return { user: null, isAuthenticated: false };
+  return null;
 };
 
-const savedAuth = loadFromLocalStorage();
+const savedUser = loadUserFromStorage();
 
 const initialState: AuthState = {
-  user: savedAuth.user,
-  isAuthenticated: savedAuth.isAuthenticated,
+  user: savedUser || {
+    username: "admin",
+    name: "Admin User",
+    role: "Administrator",
+    profileImage: "https://ui-avatars.com/api/?name=Admin+User&background=258440&color=fff",
+  },
+  isAuthenticated: false,
   loading: false,
   error: null,
 };
@@ -36,52 +41,20 @@ const authSlice = createSlice({
       state.isAuthenticated = true;
       state.user = action.payload;
       state.error = null;
-      
-      // Save to localStorage
-      try {
-        localStorage.setItem('auth', JSON.stringify({
-          user: action.payload,
-          isAuthenticated: true,
-        }));
-      } catch (error) {
-        console.error('Error saving auth to localStorage:', error);
-      }
     },
     loginFailure: (state, action: PayloadAction<string>) => {
       state.loading = false;
       state.error = action.payload;
     },
     logout: (state) => {
-      state.user = null;
       state.isAuthenticated = false;
       state.loading = false;
       state.error = null;
-      
-      // Clear localStorage
-      try {
-        localStorage.removeItem('auth');
-      } catch (error) {
-        console.error('Error clearing auth from localStorage:', error);
-      }
     },
     updateProfile: (state, action: PayloadAction<Partial<User>>) => {
       if (state.user) {
         state.user = { ...state.user, ...action.payload };
-        
-        // Update localStorage
-        try {
-          localStorage.setItem('auth', JSON.stringify({
-            user: state.user,
-            isAuthenticated: true,
-          }));
-        } catch (error) {
-          console.error('Error updating auth in localStorage:', error);
-        }
       }
-    },
-    updatePassword: (state) => {
-      // This is for tracking password change in state if needed
-      state.loading = false;
     },
   },
 });
@@ -92,7 +65,6 @@ export const {
   loginFailure,
   logout,
   updateProfile,
-  updatePassword,
 } = authSlice.actions;
 
 export default authSlice.reducer;

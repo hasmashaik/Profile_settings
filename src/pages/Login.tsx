@@ -17,6 +17,7 @@ const Login: React.FC = () => {
   const [errors, setErrors] = useState<Partial<LoginCredentials>>({});
   const [isLoading, setIsLoading] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [showResetConfirmation, setShowResetConfirmation] = useState(false);
 
   const validateForm = () => {
     const newErrors: Partial<LoginCredentials> = {};
@@ -68,16 +69,21 @@ const Login: React.FC = () => {
 
   const handleForgotPassword = () => {
     setShowForgotPassword(true);
-    setTimeout(() => {
-      setShowForgotPassword(false);
-    }, 5000);
   };
 
   const handleResetPassword = () => {
-    // Reset to default password
-    localStorage.removeItem('user_password');
-    (mockApi as any).resetPassword?.();
+    setShowResetConfirmation(true);
+  };
+
+  const confirmResetPassword = () => {
+    mockApi.resetToDefault();
+    setShowForgotPassword(false);
+    setShowResetConfirmation(false);
     toast.success('Password has been reset to default: 123456');
+  };
+
+  const cancelResetPassword = () => {
+    setShowResetConfirmation(false);
   };
 
   return (
@@ -152,18 +158,54 @@ const Login: React.FC = () => {
                 </button>
               </div>
 
+              {/* Forgot Password Section */}
               {showForgotPassword && (
-                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                  <p className="text-sm text-yellow-800">
-                    Demo feature: Password can be reset to "123456"
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 animate-fadeIn">
+                  <h3 className="text-lg font-semibold text-yellow-800 mb-2">Forgot Password?</h3>
+                  <p className="text-sm text-yellow-700 mb-3">
+                    You can reset your password to the default value. This will set your password back to "123456".
                   </p>
-                  <button
-                    type="button"
-                    onClick={handleResetPassword}
-                    className="mt-2 text-sm bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600"
-                  >
-                    Reset to Default
-                  </button>
+                  
+                  {!showResetConfirmation ? (
+                    <div className="space-y-2">
+                      <button
+                        type="button"
+                        onClick={handleResetPassword}
+                        className="w-full bg-yellow-500 text-white py-2 px-4 rounded-lg hover:bg-yellow-600 transition-colors font-medium"
+                      >
+                        Reset to Default Password
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setShowForgotPassword(false)}
+                        className="w-full border border-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-50 transition-colors"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      <p className="text-sm text-yellow-700 mb-3">
+                        Are you sure you want to reset your password to "123456"?
+                      </p>
+                      <div className="flex space-x-2">
+                        <button
+                          type="button"
+                          onClick={confirmResetPassword}
+                          className="flex-1 bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 transition-colors font-medium"
+                        >
+                          Yes, Reset
+                        </button>
+                        <button
+                          type="button"
+                          onClick={cancelResetPassword}
+                          className="flex-1 border border-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-50 transition-colors"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
 

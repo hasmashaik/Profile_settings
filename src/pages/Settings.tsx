@@ -103,7 +103,14 @@ const Settings: React.FC = () => {
       dispatch(updateProfile({ ...user, profileImage: defaultImage }));
     }
     
-    toast.success('Profile image removed');
+    // Also update in localStorage via mockApi
+    mockApi.updateProfile({ profileImage: defaultImage })
+      .then(() => {
+        toast.success('Profile image removed and saved');
+      })
+      .catch(() => {
+        toast.error('Failed to save profile image removal');
+      });
     
     // Clear file input
     if (fileInputRef.current) {
@@ -173,7 +180,7 @@ const Settings: React.FC = () => {
     }
   };
 
-  // Profile Update Functions
+  // Profile Update Functions - FIXED to save properly
   const handleProfileUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -192,7 +199,6 @@ const Settings: React.FC = () => {
         // Use the newly selected image
         profileImage = selectedImage;
         setCurrentProfileImage(selectedImage);
-        toast.info('Profile image updated successfully');
       }
       
       const updatedUser = await mockApi.updateProfile({
@@ -209,6 +215,11 @@ const Settings: React.FC = () => {
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
+      
+      // Refresh the profile data
+      setProfileData({
+        name: updatedUser.name || '',
+      });
       
     } catch (error) {
       toast.error('Failed to update profile');
@@ -228,7 +239,7 @@ const Settings: React.FC = () => {
   // Handle reset to default password
   const handleResetToDefault = () => {
     if (window.confirm('Reset password to default (123456)?')) {
-      localStorage.removeItem('user_password');
+      mockApi.resetToDefault();
       toast.success('Password reset to default: 123456');
     }
   };
