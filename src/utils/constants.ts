@@ -7,4 +7,6 @@ export const TOAST_MESSAGES = {
   PASSWORDS_NOT_MATCH: "Passwords do not match",
   FILL_ALL_FIELDS: "Please fill in all fields",
   CURRENT_PASSWORD_INCORRECT: "Current password is incorrect",
+  IMAGE_UPLOAD_SUCCESS: "Profile image uploaded successfully",
+  IMAGE_REMOVED: "Profile image removed",
 };

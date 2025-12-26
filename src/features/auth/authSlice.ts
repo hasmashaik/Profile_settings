@@ -79,6 +79,10 @@ const authSlice = createSlice({
         }
       }
     },
+    updatePassword: (state) => {
+      // This is for tracking password change in state if needed
+      state.loading = false;
+    },
   },
 });
 
@@ -88,6 +92,7 @@ export const {
   loginFailure,
   logout,
   updateProfile,
+  updatePassword,
 } = authSlice.actions;
 
 export default authSlice.reducer;
