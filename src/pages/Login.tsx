@@ -16,6 +16,7 @@ const Login: React.FC = () => {
   });
   const [errors, setErrors] = useState<Partial<LoginCredentials>>({});
   const [isLoading, setIsLoading] = useState(false);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
 
   const validateForm = () => {
     const newErrors: Partial<LoginCredentials> = {};
@@ -63,6 +64,20 @@ const Login: React.FC = () => {
     if (errors[name as keyof LoginCredentials]) {
       setErrors(prev => ({ ...prev, [name]: undefined }));
     }
+  };
+
+  const handleForgotPassword = () => {
+    setShowForgotPassword(true);
+    setTimeout(() => {
+      setShowForgotPassword(false);
+    }, 5000);
+  };
+
+  const handleResetPassword = () => {
+    // Reset to default password
+    localStorage.removeItem('user_password');
+    (mockApi as any).resetPassword?.();
+    toast.success('Password has been reset to default: 123456');
   };
 
   return (
@@ -126,6 +141,31 @@ const Login: React.FC = () => {
                   )}
                 </div>
               </div>
+
+              <div className="flex items-center justify-between">
+                <button
+                  type="button"
+                  onClick={handleForgotPassword}
+                  className="text-sm text-emerald-600 hover:text-emerald-700 font-medium"
+                >
+                  Forgot password?
+                </button>
+              </div>
+
+              {showForgotPassword && (
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                  <p className="text-sm text-yellow-800">
+                    Demo feature: Password can be reset to "123456"
+                  </p>
+                  <button
+                    type="button"
+                    onClick={handleResetPassword}
+                    className="mt-2 text-sm bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600"
+                  >
+                    Reset to Default
+                  </button>
+                </div>
+              )}
 
               <div>
                 <button

@@ -8,8 +8,25 @@ const MOCK_USER: User = {
   profileImage: "https://ui-avatars.com/api/?name=Admin+User&background=258440&color=fff",
 };
 
-// Store for current password (simulating backend)
-let CURRENT_PASSWORD = "123456";
+// Get password from localStorage or use default
+const getCurrentPassword = (): string => {
+  const savedPassword = localStorage.getItem('user_password');
+  return savedPassword || "123456"; // Default password
+};
+
+// Save password to localStorage
+const savePassword = (password: string): void => {
+  localStorage.setItem('user_password', password);
+};
+
+// Get password info (for display purposes)
+const getPasswordInfo = (): { isDefault: boolean; password: string } => {
+  const password = getCurrentPassword();
+  return {
+    isDefault: password === "123456",
+    password: password
+  };
+};
 
 // Simulate API delay
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
@@ -19,23 +36,27 @@ export const mockApi = {
   login: async (credentials: LoginCredentials): Promise<User> => {
     await delay(1000);
     
-    if (credentials.username === "admin" && credentials.password === CURRENT_PASSWORD) {
+    const currentPassword = getCurrentPassword();
+    
+    if (credentials.username === "admin" && credentials.password === currentPassword) {
       return MOCK_USER;
     }
     
     throw new Error("Invalid username or password");
   },
 
-  // Change password API - UPDATED to actually change the password
+  // Change password API - Now persists in localStorage
   changePassword: async (data: {
     currentPassword: string;
     newPassword: string;
   }): Promise<boolean> => {
     await delay(1000);
     
-    if (data.currentPassword === CURRENT_PASSWORD) {
-      // Update the current password
-      CURRENT_PASSWORD = data.newPassword;
+    const currentPassword = getCurrentPassword();
+    
+    if (data.currentPassword === currentPassword) {
+      // Save new password to localStorage
+      savePassword(data.newPassword);
       return true;
     }
     
@@ -47,4 +68,12 @@ export const mockApi = {
     await delay(800);
     return { ...MOCK_USER, ...userData };
   },
+
+  // Helper to reset password (for testing)
+  resetPassword: (): void => {
+    localStorage.removeItem('user_password');
+  },
+
+  // Helper to get password info
+  getPasswordInfo,
 };
