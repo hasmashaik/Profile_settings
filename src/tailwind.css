@@ -1,0 +1,32 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #FFFFFF;
+}
+
+.gradient-bg {
+  background: linear-gradient(135deg, #258440 0%, #1E803A 100%);
+}
+
+.gradient-btn {
+  background: linear-gradient(135deg, #258440 0%, #1E803A 100%);
+  transition: all 0.3s ease;
+}
+
+.gradient-btn:hover {
+  background: linear-gradient(135deg, #1E803A 0%, #258440 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(37, 132, 64, 0.3);
+}
+
+.login-background {
+  background: linear-gradient(135deg, #258440 0%, #1E803A 100%);
+}
